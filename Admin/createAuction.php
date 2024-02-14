@@ -4,6 +4,8 @@ ini_set('display_errors', 1);
 include '../Includes/dbcon.php';
 include '../Includes/session.php';
 
+$statusMsg = ''; // Initialize status message
+
 if (isset($_POST['save'])) {
     $auctionName = $_POST['auctionName'];
     $depositAmount = $_POST['depositAmount'];
@@ -36,10 +38,8 @@ if (isset($_POST['save'])) {
 
 ?>
 
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -52,10 +52,8 @@ if (isset($_POST['save'])) {
     <link href="../vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css">
     <link href="css/ruang-admin.min.css" rel="stylesheet">
 </head>
-
 <body id="page-top">
     <div id="wrapper">
-
         <div id="content-wrapper" class="d-flex flex-column">
             <div id="content">
                 <!-- TopBar -->
@@ -78,64 +76,54 @@ if (isset($_POST['save'])) {
                             <div class="card mb-4">
                                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                                     <h6 class="m-0 font-weight-bold text-primary">Create New Auction</h6>
-
                                 </div>
                                 <div class="card-body">
+                                    <?php echo $statusMsg; // Display status message ?>
                                     <form method="post">
                                         <div class="form-group row mb-3">
                                             <div class="col-xl-6">
-                                                <label class="form-control-label">Auction Name<span
-                                                        class="text-danger ml-2">*</span></label>
+                                                <label class="form-control-label">Auction Name<span class="text-danger ml-2">*</span></label>
                                                 <input type="text" class="form-control" name="auctionName" required>
                                             </div>
                                             <div class="col-xl-6">
-                                                <label class="form-control-label">Deposit Amount<span
-                                                        class="text-danger ml-2">*</span></label>
+                                                <label class="form-control-label">Deposit Amount<span class="text-danger ml-2">*</span></label>
                                                 <input type="text" class="form-control" name="depositAmount" required>
                                             </div>
                                         </div>
                                         <div class="form-group row mb-3">
                                             <div class="col-xl-6">
-                                                <label class="form-control-label">Region<span
-                                                        class="text-danger ml-2">*</span></label>
+                                                <label class="form-control-label">Region<span class="text-danger ml-2">*</span></label>
                                                 <input type="text" class="form-control" name="region" required>
                                             </div>
                                             <div class="col-xl-6">
-                                                <label class="form-control-label">Town<span
-                                                        class="text-danger ml-2">*</span></label>
+                                                <label class="form-control-label">Town<span class="text-danger ml-2">*</span></label>
                                                 <input type="text" class="form-control" name="town" required>
                                             </div>
                                         </div>
                                         <div class="form-group row mb-3">
                                             <div class="col-xl-6">
-                                                <label class="form-control-label">Date of Auction<span
-                                                        class="text-danger ml-2">*</span></label>
+                                                <label class="form-control-label">Date of Auction<span class="text-danger ml-2">*</span></label>
                                                 <input type="date" class="form-control" name="dateOfAuction" required>
                                             </div>
                                             <div class="col-xl-6">
-                                                <label class="form-control-label">Start Time<span
-                                                        class="text-danger ml-2">*</span></label>
+                                                <label class="form-control-label">Start Time<span class="text-danger ml-2">*</span></label>
                                                 <input type="time" class="form-control" name="startTime" required>
                                             </div>
                                         </div>
                                         <div class="form-group row mb-3">
                                             <div class="col-xl-6">
-                                                <label class="form-control-label">End Time<span
-                                                        class="text-danger ml-2"></span></label>
+                                                <label class="form-control-label">End Time</label>
                                                 <input type="time" class="form-control" name="endTime">
                                             </div>
                                             <div class="col-xl-6">
-                                                <label class="form-control-label">Banking Details<span
-                                                        class="text-danger ml-2">*</span></label>
+                                                <label class="form-control-label">Banking Details<span class="text-danger ml-2">*</span></label>
                                                 <input type="text" class="form-control" name="bankingDetails" required>
                                             </div>
                                             <div class="col-xl-6">
-                                                <label class="form-control-label">Terms and Coditions<span
-                                                        class="text-danger ml-2">*</span></label>
+                                                <label class="form-control-label">Terms and Coditions<span class="text-danger ml-2">*</span></label>
                                                 <input type="text" class="form-control" name="termsAndConditions" required>
                                             </div>
                                         </div>
-                                       
                                         <button type="submit" name="save" class="btn btn-primary">Create Auction</button>
                                     </form>
                                 </div>
@@ -161,5 +149,4 @@ if (isset($_POST['save'])) {
     <script src="../vendor/jquery-easing/jquery.easing.min.js"></script>
     <script src="js/ruang-admin.min.js"></script>
 </body>
-
 </html>

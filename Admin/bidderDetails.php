@@ -83,6 +83,7 @@ $lotsBoughtResult = $stmt->get_result();
       <div id="content">
         <div class="container-fluid" id="container-wrapper">
           <h1 class="h3 mb-4 text-gray-800">Bidder Details</h1>
+          
           <div class="row">
             <div class="col-lg-6">
               <div class="card mb-4">
@@ -152,6 +153,9 @@ $lotsBoughtResult = $stmt->get_result();
               </div>
             </div>
           </div>
+          <!-- Add a button to download bidder number PDF -->
+<a href="generate_pdf.php?bidderId=<?php echo $bidderId; ?>" class="btn btn-primary" target="_blank">Download Bidder Number</a>
+
         </div>
       </div>
       <?php include "Includes/footer.php";?>
