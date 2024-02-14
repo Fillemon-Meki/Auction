@@ -26,7 +26,7 @@ if (!$auctionDetails) {
     exit;
 }
 
-$isAuctionOpen = ($auctionDetails['is_open'] == 1);
+$isAuctionOpen = ($auctionDetails['ended_auction'] == 0);
 
 // Fetch bidder's name
 $bidderQuery = "SELECT firstname, lastname FROM bidders WHERE id_number = ?";

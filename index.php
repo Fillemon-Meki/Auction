@@ -84,7 +84,7 @@ session_start();
                     <select required name="userType" class="form-control mb-3">
                         <option value="">--Select User Roles--</option>
                         <option value="Administrator">Administrator</option>
-                        <option value="ClassTeacher">Junior Admin</option>
+                        <option value="JuniorAdmin">Junior Admin</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -135,6 +135,33 @@ session_start();
 
       }
     }
+    elseif($userType == "JuniorAdmin"){
+
+        $query = "SELECT * FROM junior WHERE emailAddress = '$username' AND password = '$password'";
+        $rs = $conn->query($query);
+        $num = $rs->num_rows;
+        $rows = $rs->fetch_assoc();
+  
+        if($num > 0){
+  
+          $_SESSION['userId'] = $rows['Id'];
+          $_SESSION['firstName'] = $rows['firstName'];
+          $_SESSION['lastName'] = $rows['lastName'];
+          $_SESSION['emailAddress'] = $rows['emailAddress'];
+  
+          echo "<script type = \"text/javascript\">
+          window.location = (\"Junior/index.php\")
+          </script>";
+        }
+  
+        else{
+  
+          echo "<div class='alert alert-danger' role='alert'>
+          Invalid Username/Password!
+          </div>";
+  
+        }
+      }
     
     else{
 

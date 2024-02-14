@@ -25,7 +25,7 @@ if (!$auctionDetails) {
 }
 
 // Check if the auction is open
-$isAuctionOpen = ($auctionDetails['is_open'] == 1);
+$isAuctionOpen = ($auctionDetails['ended_auction'] == 0);
 
 // Fetch registered bidders
 $biddersQuery = "SELECT b.id_number, b.firstname, b.lastname, ba.bid_number, ba.deposit_status 

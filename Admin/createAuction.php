@@ -121,8 +121,8 @@ if (isset($_POST['save'])) {
                                         <div class="form-group row mb-3">
                                             <div class="col-xl-6">
                                                 <label class="form-control-label">End Time<span
-                                                        class="text-danger ml-2">*</span></label>
-                                                <input type="time" class="form-control" name="endTime" required>
+                                                        class="text-danger ml-2"></span></label>
+                                                <input type="time" class="form-control" name="endTime">
                                             </div>
                                             <div class="col-xl-6">
                                                 <label class="form-control-label">Banking Details<span
