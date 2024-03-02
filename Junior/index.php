@@ -1,191 +1,151 @@
 <?php
-error_reporting(0);
 include '../Includes/dbcon.php';
 include '../Includes/session.php';
 
-// Fetch data for the earnings chart
-$queryEarnings = "SELECT ad.auction_number, SUM(ll.sold_for_amt) AS total_earnings
-                  FROM auctiondetails ad
-                  LEFT JOIN lotlist ll ON ad.auction_number = ll.auction_number
-                  WHERE ll.payment_status = 1
-                  GROUP BY ad.auction_number";
-$resultEarnings = $conn->query($queryEarnings);
+// Get the logged-in junior admin's ID from the session
+if(isset($_SESSION['userId'])) {
+    // Get the user's full name based on the userId
+    $query = "SELECT * FROM junior WHERE Id = ".$_SESSION['userId']."";
+    $rs = $conn->query($query);
 
-$labelsEarnings = array();
-$earningsData = array();
+    // Check if the query was successful
+    if($rs) {
+      $num = $rs->num_rows;
+      
+      // Check if any rows were returned
+      if($num > 0) {
+        $rows = $rs->fetch_assoc();
+        $loggedInJuniorAdminId = $rows['Id'];
+      } else {
+        $loggedInJuniorAdminId = "Unknown"; // Provide a default name if no user found
+      }
+    } else {
+      // Handle query error
+      $loggedInJuniorAdminId = "Unknown"; // Provide a default name
+    }
+  } else {
+    // Handle session variable not set error
+    $loggedInJuniorAdminId = "Unknown"; // Provide a default name
+  }
 
-while ($row = $resultEarnings->fetch_assoc()) {
-    $labelsEarnings[] = $row['auction_number'];
-    $earningsData[] = $row['total_earnings'];
+// Query to fetch assigned roles for the logged-in junior admin from the junior_admin_roles table
+$sql = "SELECT roles.role_name 
+        FROM junior_admin_roles 
+        JOIN roles ON junior_admin_roles.role_id = roles.role_id 
+        WHERE junior_admin_roles.junior_admin_id = $loggedInJuniorAdminId";
+
+$result = mysqli_query($conn, $sql);
+
+$assignedRoles = array();
+
+if (mysqli_num_rows($result) > 0) {
+    while ($row = mysqli_fetch_assoc($result)) {
+        $assignedRoles[] = $row['role_name'];
+    }
 }
 
-// Fetch data for the bidders chart
-$queryBidders = "SELECT auction_number, COUNT(*) AS num_bidders FROM biddersauction GROUP BY auction_number";
-$resultBidders = $conn->query($queryBidders);
+// Assume $allRoles is an array containing all the roles available in the database
+$allRoles = array("Manage Lots", "Generate Reports", "User Admin", "Printing", "Cashier", "New Auction");
 
-$labelsBidders = array();
-$biddersData = array();
+// Mapping from role names to Font Awesome icon classes
+$roleIconClasses = array(
+    "Manage Lots" => "fas fa-clipboard-list",
+    "Generate Reports" => "fas fa-chart-line",
+    "User Admin" => "fas fa-user-cog",
+    "Printing" => "fas fa-print",
+    "Cashier" => "fas fa-cash-register",
+    "New Auction" => "fas fa-gavel"
+);
 
-while ($row = $resultBidders->fetch_assoc()) {
-    $labelsBidders[] = $row['auction_number'];
-    $biddersData[] = $row['num_bidders'];
+// Function to check if a role is assigned to the logged-in junior admin
+function isRoleAssigned($role, $assignedRoles) {
+    return in_array($role, $assignedRoles);
 }
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>Auction Selection</title>
-  <link href="../vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-  <link href="../vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css">
-  <link href="css/ruang-admin.min.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Junior Admin Dashboard</title>
+    <link rel="stylesheet" href="../vendor/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../vendor/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="css/ruang-admin.min.css">
+    <style>
+    body {
+        background-color: #f8f9fc;
+    }
+    .container {
+        padding-top: 20px;
+    }
+    .card {
+        padding: 20px;
+        margin-bottom: 20px;
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease-in-out;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+    }
+    .card a {
+        text-decoration: none;
+        color: inherit;
+    }
+    .assigned-role {
+        background-color: #28a745 !important; /* Green color for assigned roles */
+        color: #fff !important; /* White text for assigned roles */
+    }
+    .card-title i {
+        margin-right: 10px;
+    }
+    .logo {
+        text-align: center; /* Center the content horizontally */
+        margin-bottom: 20px; /* Add some space below the logo */
+    }
+    .logo img {
+        max-width: 60%; /* Ensure the image doesn't exceed the container's width */
+        height: auto; /* Maintain aspect ratio */
+    }
+    .slogan {
+        text-align: center;
+        font-size: 18px;
+        margin-top: 20px;
+    }
+</style>
+
 </head>
-<body id="page-top">
-  <div id="wrapper">
-    <div id="content-wrapper" class="d-flex flex-column">
-      <div id="content">
-        <?php include "Includes/topbar.php";?>
-        <div class="container-fluid" id="container-wrapper">
-          <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">Home</h1>
-            <a href="createAuction.php" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-plus fa-sm text-white-50"></i> Add New Auction</a>
-          </div>
+<body> 
+    <?php include "Includes/topbar.php";?>
 
-          <!-- Line Chart for Total Earnings -->
-          <div class="row">
-            <div class="col-lg-6">
-              <div class="card mb-4">
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                  <h6 class="m-0 font-weight-bold text-primary">Total Earnings Comparison</h6>
-                </div>
-                <div class="card-body">
-                  <canvas id="earningsChart"></canvas>
-                </div>
-              </div>
-            </div>
-            
-            <!-- Line Chart for Number of Bidders -->
-            <div class="col-lg-6">
-              <div class="card mb-4">
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                  <h6 class="m-0 font-weight-bold text-primary">Number of Bidders Comparison</h6>
-                </div>
-                <div class="card-body">
-                  <canvas id="biddersChart"></canvas>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="col-lg-12">
-              <div class="card mb-4">
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                  <h6 class="m-0 font-weight-bold text-primary">Upcoming Auctions</h6>
-                </div>
-                <div class="table-responsive p-3">
-                  <table class="table align-items-center table-flush table-hover" id="dataTableHover">
-                    <thead class="thead-light">
-                      <tr>
-                        <th><i class="fas fa-hashtag"></i> Auction Number</th>
-                        <th><i class="fas fa-file-signature"></i> Auction Name</th>
-                        <th><i class="fas fa-calendar-day"></i> Date of Auction</th>
-                        <th><i class="far fa-clock"></i> Start Time</th>
-                        <th><i class="far fa-clock"></i> End Time</th>
-                        <th><i class="fas fa-map-marker-alt"></i> Region</th>
-                        <th><i class="fas fa-city"></i> Town</th>
-                        <th><i class="fas fa-info-circle"></i> Action</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <?php
-                      $query = "SELECT * FROM auctiondetails";
-                      $result = $conn->query($query);
-                      while ($row = $result->fetch_assoc()) {
-                        echo "<tr>
-                                <td>{$row['auction_number']}</td>
-                                <td>{$row['auction_name']}</td>
-                                <td>{$row['date_of_auction']}</td>
-                                <td>{$row['start_date_time']}</td>
-                                <td>{$row['end_date_time']}</td>
-                                <td>{$row['region']}</td>
-                                <td>{$row['town']}</td>
-                                <td><a href='dashboard.php?auctionNumber={$row['auction_number']}' class='btn btn-primary'>View Details</a></td>
-                              </tr>";
-                      }
-                      ?>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <?php include "Includes/footer.php";?>
+    <div class="container"> 
+        <h2 class="mb-4"><strong>Auction Era, Go Paperless – Your Eco-Friendly Auction Solution in Namibia!</strong></h2>
+    
+    <div class="logo">
+        <img src="img/6.png" alt="Logo"> <!-- Corrected the image extension to .png as mentioned -->
     </div>
-  </div>
-
-  <script src="../vendor/jquery/jquery.min.js"></script>
+        
+        
+        <div class="row">
+            <?php foreach ($assignedRoles as $role): ?>
+                <div class="col-lg-4">
+                    <div class="card clickable assigned-role">
+                        <a href="<?php echo strtolower(str_replace(' ', '_', $role)) . '.php' ?>">
+                            <div class="card-body">
+                                <h3 class="card-title"><i class="<?php echo $roleIconClasses[$role]; ?>"></i><strong><?php echo $role; ?></strong></h3> <!-- Role name is now bold -->
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    <?php include "Includes/footer.php";?>
+ <script src="../vendor/jquery/jquery.min.js"></script>
   <script src="../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
   <script src="../vendor/datatables/jquery.dataTables.min.js"></script>
   <script src="../vendor/datatables/dataTables.bootstrap4.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
-  <script>
-  $(document).ready(function () {
-    $('#dataTableHover').DataTable();
-  });
-
-  // Render the earnings chart as a bar chart
-  var earningsCtx = document.getElementById('earningsChart').getContext('2d');
-  var earningsChart = new Chart(earningsCtx, {
-    type: 'bar',
-    data: {
-      labels: <?php echo json_encode($labelsEarnings); ?>,
-      datasets: [{
-        label: 'Total Earnings',
-        data: <?php echo json_encode($earningsData); ?>,
-        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-        borderColor: 'rgba(54, 162, 235, 1)',
-        borderWidth: 1
-      }]
-    },
-    options: {
-      scales: {
-        y: {
-          beginAtZero: true
-        }
-      }
-    }
-  });
-
-  // Render the bidders chart as a bar chart
-  var biddersCtx = document.getElementById('biddersChart').getContext('2d');
-  var biddersChart = new Chart(biddersCtx, {
-    type: 'bar',
-    data: {
-      labels: <?php echo json_encode($labelsBidders); ?>,
-      datasets: [{
-        label: 'Number of Bidders',
-        data: <?php echo json_encode($biddersData); ?>,
-        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-        borderColor: 'rgba(255, 99, 132, 1)',
-        borderWidth: 1
-      }]
-    },
-    options: {
-      scales: {
-        y: {
-          beginAtZero: true
-        }
-      }
-    }
-  });
-</script>
-
 </body>
 </html>

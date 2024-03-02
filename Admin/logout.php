@@ -6,4 +6,3 @@ session_destroy(); // destroy session
   </script>";
   
   ?>
-

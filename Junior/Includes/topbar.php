@@ -4,7 +4,7 @@
   // Check if the session variable is set to avoid undefined index error
   if(isset($_SESSION['userId'])) {
     // Get the user's full name based on the userId
-    $query = "SELECT * FROM tbladmin WHERE Id = ".$_SESSION['userId']."";
+    $query = "SELECT * FROM junior WHERE Id = ".$_SESSION['userId']."";
     $rs = $conn->query($query);
 
     // Check if the query was successful
