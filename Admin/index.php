@@ -51,8 +51,11 @@ while ($row = $resultBidders->fetch_assoc()) {
         <?php include "Includes/topbar.php";?>
         <div class="container-fluid" id="container-wrapper">
           <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">Home</h1>
-            <a href="createAuction.php" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-plus fa-sm text-white-50"></i> Add New Auction</a>
+          <a href="juniorAdmin.php" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-user-plus fa-sm text-white-50"></i> Add New Admin</a>
+          <a href="ManageAdmin.php" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-user fa-sm text-white-50"></i> Admin Accounts</a>
+<a href="assignRoles.php" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-user-tag fa-sm text-white-50"></i> Assign Roles</a>
+<a href="createAuction.php" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-gavel fa-sm text-white-50"></i> Add New Auction</a>
+
           </div>
 
           <!-- Line Chart for Total Earnings -->
