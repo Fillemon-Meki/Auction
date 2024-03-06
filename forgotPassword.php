@@ -90,5 +90,4 @@ session_start();
     <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
     <script src="js/ruang-admin.min.js"></script>
 </body>
-
 </html>
