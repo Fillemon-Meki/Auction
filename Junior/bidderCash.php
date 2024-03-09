@@ -123,7 +123,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 ?>
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -153,7 +152,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="container-fluid" id="container-wrapper">
           <h1 class="h3 mb-4 text-gray-800">Bidder Details</h1>
           
-          <!-- Success and Error Messages -->
           <?php if(isset($successMessage)): ?>
           <div class="alert alert-success" role="alert">
             <?php echo $successMessage; ?>
@@ -166,7 +164,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           </div>
           <?php endif; ?>
           
-          <!-- Bidder Information Card -->
           <div class="row">
             <div class="col-lg-6">
               <div class="card mb-4">
@@ -174,72 +171,67 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                   <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-user"></i> Bidder Information</h6>
                 </div>
                 <div class="card-body">
-                  <p><strong>First Name:</strong> <?php echo htmlspecialchars($bidderDetails['firstname']); ?></p>
-                  <p><strong>Last Name:</strong> <?php echo htmlspecialchars($bidderDetails['lastname']); ?></p>
-                  <p><strong>ID Number:</strong> <?php echo htmlspecialchars($bidderDetails['id_number']); ?></p>
-                  <p><strong>Bidder Number:</strong> <?php echo htmlspecialchars($bidderNumber); ?></p>
-                  <p><strong>Status:</strong> <span class="status-<?php echo strtolower($bidderStatus); ?>"><?php echo $bidderStatus; ?></span></p>
-                  <p><strong>Registration Change:</strong> <?php echo $registrationChange; ?> <button type="button" class="btn btn-primary" id="issueChangeBtn">Issue Change</button></p>
-                  
-                  <!-- Transaction Type Dropdown -->
-                  <div class="form-group">
-                      <label for="transactionType">Transaction Type:</label>
-                      <select class="form-control" id="transactionType" name="transactionType">
-                          <option value="deposit">Deposit</option>
-                          <option value="withdrawal">Withdrawal</option>
-                      </select>
-                  </div>
-                  
-                  <!-- Deposit Form -->
-                  <form action="" method="post" id="depositForm" enctype="multipart/form-data">
-                      <!-- Deposit Amount -->
-                      <div class="form-group">
-                          <label for="depositAmount">Enter Deposit Amount:</label>
-                          <input type="number" class="form-control" id="depositAmount" name="depositAmount" required>
-                      </div>
-                  
-                      <!-- Description -->
-                      <div class="form-group">
-                          <label for="description">Description:</label>
-                          <input type="text" class="form-control" id="description" name="description" required>
-                      </div>
-                  
-                      <!-- Deposit For (Lots/Registration Fees) -->
-                      <div class="form-group">
-                          <label for="depositFor">Deposit For:</label>
-                          <select class="form-control" id="depositFor" name="depositFor" required>
-                              <option value="">Select Deposit For</option>
-                              <option value="lots">Lots</option>
-                              <option value="registration_fees">Registration Fees</option>
-                          </select>
-                      </div>
-                  
-                      <!-- Payment Method -->
-                      <div id="lotsOptions" style="display: none;">
-                          <div class="form-group">
-                              <label for="paymentMethod">Payment Method:</label>
-                              <select class="form-control" id="paymentMethod" name="paymentMethod"> <!-- Ensure name="paymentMethod" is set -->
-                                  <option value="">Select Payment Method</option>
-                                  <option value="cash">Cash</option>
-                                  <option value="eft">EFT</option>
-                              </select>
-                          </div>
-                  
-                          <!-- Proof of Payment Upload Field -->
-                          <div id="proofOfPaymentField" style="display: none;">
-                              <div class="form-group">
-                                  <label for="proofOfPayment">Upload Proof of Payment:</label>
-                                  <input type="file" class="form-control-file" id="proofOfPayment" name="proofOfPayment">
-                              </div>
-                          </div>
-                      </div>
-                      <input type="hidden" name="bidderId" value="<?php echo $bidderId; ?>">
-                      <button type="button" class="btn btn-primary" onclick="submitForm()">Submit Deposit</button>
-                  </form>
+    <p><strong>First Name:</strong> <?php echo htmlspecialchars($bidderDetails['firstname']); ?></p>
+    <p><strong>Last Name:</strong> <?php echo htmlspecialchars($bidderDetails['lastname']); ?></p>
+    <p><strong>ID Number:</strong> <?php echo htmlspecialchars($bidderDetails['id_number']); ?></p>
+    <p><strong>Bidder Number:</strong> <?php echo htmlspecialchars($bidderNumber); ?></p>
+    <p><strong>Status:</strong> <span class="status-<?php echo strtolower($bidderStatus); ?>"><?php echo $bidderStatus; ?></span></p>
+    <!-- Add other bidder details here -->
+    
+    <!-- Add transaction type dropdown -->
+    <div class="form-group">
+        <label for="transactionType">Transaction Type:</label>
+        <select class="form-control" id="transactionType" name="transactionType">
+            <option value="deposit">Deposit</option>
+            <option value="withdrawal">Withdrawal</option>
+        </select>
+    </div>
+    
+    <!-- Add deposit fields -->
+    <form action="" method="post" id="depositForm">
+        <div class="form-group">
+            <label for="depositAmount">Enter Deposit Amount:</label>
+            <input type="number" class="form-control" id="depositAmount" name="depositAmount" required>
+        </div>
+    
+        <div class="form-group">
+            <label for="description">Description:</label>
+            <input type="text" class="form-control" id="description" name="description" required>
+        </div>
+    
+        <div class="form-group">
+            <label for="depositFor">Deposit For:</label>
+            <select class="form-control" id="depositFor" name="depositFor" required>
+                <option value="">Select Deposit For</option>
+                <option value="lots">Lots</option>
+                <option value="registration_fees">Registration Fees</option>
+            </select>
+        </div>
+    
+        <div id="lotsOptions" style="display: none;">
+            <div class="form-group">
+                <label for="paymentMethod">Payment Method:</label>
+                <select class="form-control" id="paymentMethod" name="paymentMethod">
+                    <option value="">Select Payment Method</option>
+                    <option value="cash">Cash</option>
+                    <option value="eft">EFT</option>
+                </select>
+            </div>
+    
+            <div id="proofOfPaymentField" style="display: none;">
+                <div class="form-group">
+                    <label for="proofOfPayment">Upload Proof of Payment:</label>
+                    <input type="file" class="form-control-file" id="proofOfPayment" name="proofOfPayment">
                 </div>
+            </div>
+        </div>
+        <input type="hidden" name="bidderId" value="<?php echo $bidderId; ?>">
+        <button type="submit" class="btn btn-primary">Submit Deposit</button>
+    </form>
+</div>
+
               </div>
             </div>
-            <!-- Bidder Transactions Card -->
             <div class="col-lg-6">
               <div class="card mb-4">
                 <div class="card-header py-3">
@@ -276,9 +268,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
               </div>
             </div>
           </div>
-
-          <
-          
         </div>
       </div>
       <?php include "Includes/footer.php";?>
@@ -286,89 +275,45 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   </div>
   <script src="../vendor/jquery/jquery.min.js"></script>
   <script src="../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-
-  <script>
-    document.getElementById("issueChangeBtn").addEventListener("click", function() {
-      console.log("Button clicked"); // Check if the button click event is triggered
-      if (<?php echo $registrationChange; ?> > 0) {
-        console.log("Registration change is above 0"); // Check if the registration change is above 0
-        // Make AJAX request to process_change.php
-        var xhr = new XMLHttpRequest();
-        xhr.open("POST", "process_change.php", true);
-        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-        xhr.onreadystatechange = function() {
-          if (xhr.readyState === XMLHttpRequest.DONE) {
-            if (xhr.status === 200) {
-              var response = JSON.parse(xhr.responseText);
-              console.log(response); // Log the response from the server
-              if (response.success) {
-                alert(response.message);
-                // Optionally, you can reload the page or update UI as needed
-                location.reload();
-              } else {
-                alert(response.error);
-              }
-            } else {
-              alert("An error occurred. Please try again. Status: " + xhr.status);
-            }
-          }
-        };
-        // Construct the data to be sent in the request
-        var data = "bidderId=<?php echo $bidderId; ?>&auctionNumber=<?php echo $activeAuctionNumber; ?>&amount=<?php echo $registrationChange; ?>&created_at=<?php echo date('Y-m-d H:i:s'); ?>";
-        // Send the request with the data
-        xhr.send(data);
-        console.log("AJAX request sent"); // Check if the AJAX request is sent
-      } else {
-        alert("Registration change is not above 0. No change issued.");
-      }
-    });
-  </script>
-
   <script>
     // Display deposit fields by default
     document.getElementById("depositForm").style.display = "block";
 
+    document.getElementById("transactionType").addEventListener("change", function() {
+        var depositForm = document.getElementById("depositForm");
 
+        if (this.value === "deposit") {
+            depositForm.style.display = "block";
+        } else {
+            depositForm.style.display = "none";
+        }
+    });
 
-    // Function to handle form submission
-    function submitForm() {
-        // Retrieve form data
-        var depositAmount = document.getElementById('depositAmount').value;
-        var description = document.getElementById('description').value;
-        var depositFor = document.getElementById('depositFor').value;
-        var paymentMethod = document.getElementById('paymentMethod').value;
-        var proofOfPayment = document.getElementById('proofOfPayment').files[0]; // Retrieve uploaded file
+    document.getElementById("depositFor").addEventListener("change", function() {
+        var lotsOptions = document.getElementById("lotsOptions");
+        var paymentMethod = document.getElementById("paymentMethod");
+        var proofOfPaymentField = document.getElementById("proofOfPaymentField");
 
-        // Create form data object
-        var formData = new FormData();
-        formData.append('depositAmount', depositAmount);
-        formData.append('description', description);
-        formData.append('depositFor', depositFor);
-        formData.append('paymentMethod', paymentMethod);
-        formData.append('proofOfPayment', proofOfPayment);
+        if (this.value === "lots") {
+            lotsOptions.style.display = "block";
+            paymentMethod.required = true;
+        } else {
+            lotsOptions.style.display = "none";
+            paymentMethod.required = false;
+            paymentMethod.value = "";
+            proofOfPaymentField.style.display = "none";
+        }
+    });
 
-        // Send form data to server using fetch API
-        fetch('process_deposit.php?bidderId=<?php echo $bidderId; ?>', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            // Display success or error message
-            if (data.success) {
-                alert(data.message); // You can replace this with a more user-friendly notification
-                location.reload(); // Refresh the page after successful submission
-            } else {
-                alert(data.error); // Display error message to the user
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred. Please try again.'); // Display generic error message
-        });
-    }
+    document.getElementById("paymentMethod").addEventListener("change", function() {
+        var proofOfPaymentField = document.getElementById("proofOfPaymentField");
 
-  </script>
-  
+        if (this.value === "eft") {
+            proofOfPaymentField.style.display = "block";
+        } else {
+            proofOfPaymentField.style.display = "none";
+        }
+    });
+</script>
 </body>
 </html>
