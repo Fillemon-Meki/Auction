@@ -151,8 +151,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <?php include "Includes/topbar.php"; ?>
       <div id="content">
         <div class="container-fluid" id="container-wrapper">
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
           <h1 class="h3 mb-4 text-gray-800">Bidder Details</h1>
-          
+          <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="./">Home</a></li>
+                            <li class="breadcrumb-item"><a href="cashier.php">Bidders</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Bidder Details</li>
+                        </ol>
+        </div>
           <!-- Success and Error Messages -->
           <?php if(isset($successMessage)): ?>
           <div class="alert alert-success" role="alert">

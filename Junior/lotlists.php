@@ -4,20 +4,19 @@ ini_set('display_errors', 1);
 include '../Includes/dbcon.php';
 include '../Includes/session.php';
 
-// Fetch auction details
-$auctionNumber = $_GET['auctionNumber'] ?? '';
-
-$auctionQuery = "SELECT * FROM auctiondetails WHERE auction_number = ?";
+// Fetch auction details where ended_auction is 0
+$auctionQuery = "SELECT * FROM auctiondetails WHERE ended_auction = 0";
 $stmt = $conn->prepare($auctionQuery);
-$stmt->bind_param("s", $auctionNumber);
 $stmt->execute();
 $auctionResult = $stmt->get_result();
 $auctionDetails = $auctionResult->fetch_assoc();
 
 if (!$auctionDetails) {
-    echo "Auction not found.";
+    echo "No active auction found.";
     exit;
 }
+
+$auctionNumber = $auctionDetails['auction_number'];
 
 // Fetch lots for the selected auction
 $lotsQuery = "SELECT ll.id, ll.lot_number, ll.title_desc, ll.payment_status, ll.sold_for_amt, ll.start_bid_amt 
@@ -32,24 +31,32 @@ $lotsResult = $stmt->get_result();
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>Lots for Auction - <?php echo htmlspecialchars($auctionDetails['auction_name']); ?></title>
-  <link href="../vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-  <link href="../vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-  <link href="css/ruang-admin.min.css" rel="stylesheet">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link href="img/logo/attnlg.jpg" rel="icon">
+    <title>View Lots</title>
+    <link href="../vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="../vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <link href="css/ruang-admin.min.css" rel="stylesheet">
 </head>
 <body id="page-top">
   <div id="wrapper">
-    <?php include "Includes/sidebar.php"; ?>
+   
     <div id="content-wrapper" class="d-flex flex-column">
       <?php include "Includes/topbar.php"; ?>
       <div id="content">
         <div class="container-fluid" id="container-wrapper">
           <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">Lots for Auction: <?php echo htmlspecialchars($auctionDetails['auction_name']); ?></h1>
+            <!-- <h1 class="h3 mb-0 text-gray-800">Lots for Auction: <?php echo htmlspecialchars($auctionDetails['auction_name']); ?></h1> -->
+            <a href="manage_lots.php" class="btn btn-info">Add Lots</a>
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="./">Home</a></li>
+                            <li class="breadcrumb-item"><a href="manage_lots.php">Add Lots</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">View Lots</li>
+                        </ol>
           </div>
           <div class="row">
             <div class="col-lg-12">
