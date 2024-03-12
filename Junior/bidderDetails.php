@@ -60,8 +60,17 @@ $totalRegistrationFeesResult = $stmt->get_result();
 $totalRegistrationFeesRow = $totalRegistrationFeesResult->fetch_assoc();
 $totalRegistrationFees = $totalRegistrationFeesRow ? $totalRegistrationFeesRow['total_registration_fees'] : 0;
 
+// Calculate total deposit amount for lots
+$totalDepositForLotsQuery = "SELECT SUM(amount) AS total_deposit_for_lots FROM transactions WHERE bid_number = ? AND type = 1";
+$stmt = $conn->prepare($totalDepositForLotsQuery);
+$stmt->bind_param("i", $bidderNumber);
+$stmt->execute();
+$totalDepositForLotsResult = $stmt->get_result();
+$totalDepositForLotsRow = $totalDepositForLotsResult->fetch_assoc();
+$totalDepositForLots = $totalDepositForLotsRow ? $totalDepositForLotsRow['total_deposit_for_lots'] : 0;
+
 // Calculate registration change
-$registrationChange = $totalRegistrationFees - $activeAuctionDeposit;
+$registrationChange = $totalRegistrationFees - $totalDepositForLots;
 
 // Check if the form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -91,7 +100,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // Determine type based on depositFor value
-    $type = ($depositFor == 'lots') ? 1 : 0;
+    $type = ($depositFor == 'lots') ? 2 : 0;
 
     // Retrieve the auction number where ended_auction is 0
     $auctionQuery = "SELECT auction_number FROM auctiondetails WHERE ended_auction = 0 LIMIT 1";
