@@ -50,7 +50,7 @@ if ($depositFor === 'lots' && isset($_FILES['proofOfPayment']) && $_FILES['proof
 $createdAt = date('Y-m-d H:i:s');
 
 // Determine type based on depositFor value
-$type = ($depositFor == 'lots') ? 1 : 0;
+$type = ($depositFor == 'lots') ? 2 : 0;
 
 // Determine payment method value
 $paymentMethodValue = $paymentMethod === 'cash' ? 0 : ($paymentMethod === 'eft' ? 1 : '');

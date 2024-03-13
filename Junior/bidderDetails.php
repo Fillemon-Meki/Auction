@@ -51,7 +51,7 @@ $activeAuctionDepositResult = $conn->query($activeAuctionDepositQuery);
 $activeAuctionDepositRow = $activeAuctionDepositResult->fetch_assoc();
 $activeAuctionDeposit = $activeAuctionDepositRow ? $activeAuctionDepositRow['deposit_amount'] : 0;
 
-// Calculate total registration fees paid by the bidder
+// Calculate total registration fees paid by the bidder (transactions with type 0)
 $totalRegistrationFeesQuery = "SELECT SUM(amount) AS total_registration_fees FROM transactions WHERE bid_number = ? AND type = 0";
 $stmt = $conn->prepare($totalRegistrationFeesQuery);
 $stmt->bind_param("i", $bidderNumber);
@@ -60,8 +60,8 @@ $totalRegistrationFeesResult = $stmt->get_result();
 $totalRegistrationFeesRow = $totalRegistrationFeesResult->fetch_assoc();
 $totalRegistrationFees = $totalRegistrationFeesRow ? $totalRegistrationFeesRow['total_registration_fees'] : 0;
 
-// Calculate total deposit amount for lots
-$totalDepositForLotsQuery = "SELECT SUM(amount) AS total_deposit_for_lots FROM transactions WHERE bid_number = ? AND type = 1";
+// Calculate total deposit amount for lots (transactions with type 2)
+$totalDepositForLotsQuery = "SELECT SUM(amount) AS total_deposit_for_lots FROM transactions WHERE bid_number = ? AND type = 2";
 $stmt = $conn->prepare($totalDepositForLotsQuery);
 $stmt->bind_param("i", $bidderNumber);
 $stmt->execute();
@@ -69,8 +69,18 @@ $totalDepositForLotsResult = $stmt->get_result();
 $totalDepositForLotsRow = $totalDepositForLotsResult->fetch_assoc();
 $totalDepositForLots = $totalDepositForLotsRow ? $totalDepositForLotsRow['total_deposit_for_lots'] : 0;
 
-// Calculate registration change
-$registrationChange = $totalRegistrationFees - $totalDepositForLots;
+// Calculate total deposit amount for withdrawals (transactions with type 1)
+$totalWithdrawalsQuery = "SELECT SUM(amount) AS total_withdrawals FROM transactions WHERE bid_number = ? AND type = 1";
+$stmt = $conn->prepare($totalWithdrawalsQuery);
+$stmt->bind_param("i", $bidderNumber);
+$stmt->execute();
+$totalWithdrawalsResult = $stmt->get_result();
+$totalWithdrawalsRow = $totalWithdrawalsResult->fetch_assoc();
+$totalWithdrawals = $totalWithdrawalsRow ? $totalWithdrawalsRow['total_withdrawals'] : 0;
+
+// Calculate registration change by subtracting total withdrawals from the difference of total registration fees and total deposit amount for lots
+$registrationChange = $totalRegistrationFees + $totalDepositForLots - $totalWithdrawals;
+
 
 // Check if the form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -194,7 +204,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                   <p><strong>ID Number:</strong> <?php echo htmlspecialchars($bidderDetails['id_number']); ?></p>
                   <p><strong>Bidder Number:</strong> <?php echo htmlspecialchars($bidderNumber); ?></p>
                   <p><strong>Status:</strong> <span class="status-<?php echo strtolower($bidderStatus); ?>"><?php echo $bidderStatus; ?></span></p>
-                  <p><strong>Registration Change:</strong> <?php echo $registrationChange; ?> <button type="button" class="btn btn-primary" id="issueChangeBtn">Issue Change</button></p>
+                  <p><strong>Registration Change:</strong> <?php echo $registrationChange; ?> <button type="button" class="btn btn-primary" id="issueChangeBtn">Issue Change</button>
+
                   
                   <!-- Transaction Type Dropdown -->
                   <div class="form-group">
@@ -303,49 +314,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <script src="../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
   <script>
-    document.getElementById("issueChangeBtn").addEventListener("click", function() {
-      console.log("Button clicked"); // Check if the button click event is triggered
-      if (<?php echo $registrationChange; ?> > 0) {
-        console.log("Registration change is above 0"); // Check if the registration change is above 0
-        // Make AJAX request to process_change.php
-        var xhr = new XMLHttpRequest();
-        xhr.open("POST", "process_change.php", true);
-        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-        xhr.onreadystatechange = function() {
-          if (xhr.readyState === XMLHttpRequest.DONE) {
-            if (xhr.status === 200) {
-              var response = JSON.parse(xhr.responseText);
-              console.log(response); // Log the response from the server
-              if (response.success) {
-                alert(response.message);
-                // Optionally, you can reload the page or update UI as needed
-                location.reload();
-              } else {
-                alert(response.error);
-              }
-            } else {
-              alert("An error occurred. Please try again. Status: " + xhr.status);
-            }
-          }
-        };
-        // Construct the data to be sent in the request
-        var data = "bidderId=<?php echo $bidderId; ?>&auctionNumber=<?php echo $activeAuctionNumber; ?>&amount=<?php echo $registrationChange; ?>&created_at=<?php echo date('Y-m-d H:i:s'); ?>";
-        // Send the request with the data
-        xhr.send(data);
-        console.log("AJAX request sent"); // Check if the AJAX request is sent
-      } else {
-        alert("Registration change is not above 0. No change issued.");
-      }
-    });
-  </script>
-
-  <script>
     // Display deposit fields by default
     document.getElementById("depositForm").style.display = "block";
 
-
-
-    // Function to handle form submission
+    // Function to handle form submission and issue change button click event
     function submitForm() {
         // Retrieve form data
         var depositAmount = document.getElementById('depositAmount').value;
@@ -362,8 +334,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         formData.append('paymentMethod', paymentMethod);
         formData.append('proofOfPayment', proofOfPayment);
 
+        // Determine the URL based on the button clicked
+        var url = '';
+        if (event.target.id === 'issueChangeBtn') {
+            // If issue change button clicked, set the URL to process_change.php
+            url = 'process_change.php?bidderId=<?php echo $bidderId; ?>';
+        } else {
+            // If deposit form submitted, set the URL to process_deposit.php
+            url = 'process_deposit.php?bidderId=<?php echo $bidderId; ?>';
+        }
+
         // Send form data to server using fetch API
-        fetch('process_deposit.php?bidderId=<?php echo $bidderId; ?>', {
+        fetch(url, {
             method: 'POST',
             body: formData
         })
@@ -382,8 +364,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             alert('An error occurred. Please try again.'); // Display generic error message
         });
     }
+</script>
 
-  </script>
   
 </body>
 </html>
